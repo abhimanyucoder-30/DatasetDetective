@@ -3,6 +3,8 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 from sklearn.pipeline import Pipeline
 from sklearn.impute import SimpleImputer
+from eda import perform_eda
+
 df= pd.read_csv("./titanic.csv")
 
 print("Number of rows:", df.shape[0])
@@ -36,7 +38,13 @@ print("Removing Nan values from all columns (by replacing them with their median
 num_ppl= Pipeline([
     ('num_ppl', SimpleImputer(strategy="median"))
 ])
-df_cleaned[num_attr]= pd.DataFrame(num_ppl.fit_transform(df[num_attr]), columns= num_attr)
+for a in num_attr:
+    a_list= list(df_cleaned[a].unique())
+    if set(a_list)==set([0,1]):
+        cat_attr.append(a)
+        num_attr.remove(a)
+        continue
+    df_cleaned[num_attr]= pd.DataFrame(num_ppl.fit_transform(df[num_attr]), columns= num_attr)
 print(df[num_attr].isnull().sum())
 
 cat_ppl= Pipeline([
@@ -66,13 +74,11 @@ for a in num_attr:
 
 
 print("Calculations for numerical attributes:\n--------------------")
-print(df_cleaned.head())
+print("Skewness\n------------")
 for a in num_attr:
     print("{}:{}".format(a, df_cleaned[a].skew()))
 
-
-
-
+perform_eda(df_cleaned, cols)
 
 
 
